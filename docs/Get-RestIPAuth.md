@@ -23,7 +23,7 @@ The function will return a nested set of Objects describing what url a given IP 
 ### EXAMPLE 1
 
 ## PARAMETERS
-this function does not require or take any parameters
+this function does not require or take any parameters.
 
 ### CommonParameters
 
