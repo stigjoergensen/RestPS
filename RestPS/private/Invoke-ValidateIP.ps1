@@ -7,6 +7,8 @@ function Invoke-ValidateIP
         The RestPSLocalRoot is also optional, and defaults to "C:\RestPS"
     .PARAMETER VerifyClientIP
         A VerifyClientIP is optional - Accepted values are:$false or $true
+    .PARAMETER Url
+        Url is optional - Checks if URL is in the ACL list gotten from Get-RestIPAuth.ACL
     .EXAMPLE
         Invoke-ValidateIP -VerifyClientIP $true -RestPSLocalRoot c:\RestPS
     .NOTES
@@ -16,8 +18,19 @@ function Invoke-ValidateIP
     [OutputType([boolean])]
     param(
         [Parameter()][String]$RestPSLocalRoot = "c:\RestPS",
+        [Parameter()][String]$URL = $null,
         [Parameter()][Bool]$VerifyClientIP
     )
+
+    #$NetworkAdr, $NetworkLen = "123.123.123.123/24" -split ("/")	
+    #[System.Net.IPAddress]$SubnetMask = ([UInt32]::MaxValue) -shl (32 - $NetworkLen) -shr (32 - $NetworkLen)
+    #$NetworkAdr.Address -eq ($RequesterIP.Address -band $SubnetMask.Address)
+
+    #[System.Net.IPAddress]$IPAddress = '172.20.76.5'
+    #[System.Net.IPAddress]$Subnet = "172.20.76.0"
+    #[System.Net.IPAddress]$SubnetMask = "255.255.254.0"
+	
+	
     if ($VerifyClientIP -eq $true)
     {
         . $RestPSLocalRoot\bin\Get-RestIPAuth.ps1
@@ -25,21 +38,69 @@ function Invoke-ValidateIP
         $RequesterIP = $script:Request.RemoteEndPoint
         if ($null -ne $RestIPAuth)
         {
-            $RequesterIP, $RequesterPort = $RequesterIP -split (":")
-            $RequesterStatus = $RestIPAuth | Where-Object {($_.IP -eq "$RequesterIP")}
-            if (($RequesterStatus | Measure-Object).Count -eq 1)
+            [System.Net.IPAddress]$RequesterIP, $RequesterPort = $RequesterIP -split (":")
+            if (Get-NetIPAddress -IPAddress $RequesterIP -ErrorAction Ignore)
             {
-                Write-Log -LogFile $Logfile -LogLevel $logLevel -MsgType INFO -Message "Invoke-ValidateIP: Valid Client IP"
-                $script:VerifyStatus = $true
+                [System.Net.IPAddress]$RequesterIP = "127.0.0.1"
+            }
+
+            $script:VerifyStatus = $false
+            if ($RestIPAuth.ACL."$($RequesterIP.Address)")
+            {
+                :IPCheck foreach ($Path in $ACL.Path)
+                {
+                    if ($URL.toLower().StartsWith($Path))
+                    {
+                        Write-Log -LogFile $Logfile -LogLevel $logLevel -MsgType INFO -Message "Invoke-ValidateIP: Valid Client IP"
+                        $script:VerifyStatus = $true
+                        break :IPCheck
+                    }
+                }
             }
             else
             {
-                $script:VerifyStatus = $false
+                if ($RestIPAuth.EnableIPLists)
+                {
+                    :ListCheck foreach ($ACL in $RestIPAuth.ACL)
+                    {
+                        foreach ($IP in (($ACL.Name) -split "," ))
+                        {
+                            if ($RequesterIP -eq $IP)
+                            {
+                                foreach ($Path in $ACL.Path)
+                                {
+                                    if ($URL.toLower().StartsWith($Path))
+                                    {
+                                        Write-Log -LogFile $Logfile -LogLevel $logLevel -MsgType INFO -Message "Invoke-ValidateIP: Valid Client IP in List $($ACL.Name)"
+                                        $script:VerifyStatus = $true
+                                        Break :ListCheck
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (($RestIPAuth.EnableSubnetSearch) -and !($script:VerifyStatus))
+                {
+                    :SubnetCheck foreach ($ACL in $RestIPAuth.ACL)
+                    {
+                        [System.Net.IPAddress]$NetworkAdr, [integer]$NetworkLen = $ACL.Name -split ("/")
+                        [System.Net.IPAddress]$SubnetMask = ([UInt32]::MaxValue) -shl (32 - $NetworkLen) -shr (32 - $NetworkLen)
+                        if ($NetworkAdr.Address -eq ($RequesterIP.Address -band $SubnetMask.Address))
+                        {
+                            foreach ($Path in $ACL.Path)
+                            {
+                                if ($URL.toLower().StartsWith($Path))
+                                {
+                                    Write-Log -LogFile $Logfile -LogLevel $logLevel -MsgType INFO -Message "Invoke-ValidateIP: Valid Client IP in subnet $($NetworkAdr.Address)/$($NetworkLen)"
+                                    $script:VerifyStatus = $true
+                                    Break :SubnetCheck
+                                }
+                            }
+                        }
+                    }
+                }
             }
-        }
-        else
-        {
-            $script:VerifyStatus = $false
         }
     }
     $script:VerifyStatus

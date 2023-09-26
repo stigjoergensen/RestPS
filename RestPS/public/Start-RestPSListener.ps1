@@ -92,13 +92,13 @@ function Start-RestPSListener
                     if ($VerificationType -eq "")
                     {
                         Write-Log -LogFile $Logfile -LogLevel $logLevel -MsgType TRACE -Message "Start-RestPSListener: Executing Invoke-ValidateIP Validate IP only"
-                        $script:ProcessRequest = (Invoke-ValidateIP -RestPSLocalRoot $RestPSLocalRoot -VerifyClientIP $VerifyClientIP)
+                        $script:ProcessRequest = (Invoke-ValidateIP -RestPSLocalRoot $RestPSLocalRoot -VerifyClientIP $VerifyClientIP -URL ($script:Request.RawUrl).split("?"[0])
                     }
                     # Validate client IP's and VerificationType.
                     else
                     {
                         Write-Log -LogFile $Logfile -LogLevel $logLevel -MsgType TRACE -Message "Start-RestPSListener: Executing Invoke-ValidateIP Validate IP before Authentication"
-                        $script:ProcessRequest = (Invoke-ValidateIP -RestPSLocalRoot $RestPSLocalRoot -VerifyClientIP $VerifyClientIP)
+                        $script:ProcessRequest = (Invoke-ValidateIP -RestPSLocalRoot $RestPSLocalRoot -VerifyClientIP $VerifyClientIP -URL ($script:Request.RawUrl).split("?"[0])
                         # Determine if client IP validation was successful then start validation of VerificationType.
                         if ($script:ProcessRequest -eq $true)
                         {
