@@ -19,8 +19,12 @@ function Get-RestIPAuth
                 Path = @("/c", "/d")
             }
             "192.168.1.0/24"             = @{   # you are able to define a subnet with access, but subnetsearch must be enabled before it will work, see below
-                Name "Subnet 1"
+                Name = "Subnet 1"
                 Path = @("/")
+            }
+            "192.168.7.0/24"             = @{   # you are able to define a subnet with access, but subnetsearch must be enabled before it will work, see below
+                Name = "Subnet 7"
+                Path = @("/a")
             }
         }
         EnableSubnetSearch = $false		# Enable subnet seach, this will take a performance hit, how big depends on the number of subnets in the ACL list.

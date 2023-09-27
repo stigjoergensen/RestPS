@@ -14,7 +14,7 @@ function Invoke-ValidateIP
     .EXAMPLE
         Invoke-ValidateIP -VerifyClientIP $true -RestPSLocalRoot c:\RestPS
     .NOTES
-        This will return a boolean.
+        This will return $null if not validated, can be used as a boolen.
     #>
     [CmdletBinding()]
     [OutputType([boolean])]
@@ -33,6 +33,7 @@ function Invoke-ValidateIP
     #[System.Net.IPAddress]$SubnetMask = "255.255.254.0"
 	
 	
+    $script:IPACL = $null
     if ($VerifyClientIP -eq $true)
     {
         . $RestPSLocalRoot\bin\Get-RestIPAuth.ps1
@@ -46,8 +47,6 @@ function Invoke-ValidateIP
                 [System.Net.IPAddress]$RequesterIP = "127.0.0.1"
             }
 
-            $script:VerifyStatus = $false
-	    $script:IPACL = $null
             if ($RestIPAuth.ACL."$($RequesterIP.Address)")
             {
                 :IPCheck foreach ($Path in $ACL.Path)
@@ -55,8 +54,7 @@ function Invoke-ValidateIP
                     if ($URL.toLower().StartsWith($Path))
                     {
                         Write-Log -LogFile $Logfile -LogLevel $logLevel -MsgType INFO -Message "Invoke-ValidateIP: Valid Client IP"
-                        $script:VerifyStatus = $true
-			$script:IPACL = $ACL
+                        $script:IPACL = $ACL
                         break :IPCheck
                     }
                 }
@@ -76,8 +74,7 @@ function Invoke-ValidateIP
                                     if ($URL.toLower().StartsWith($Path))
                                     {
                                         Write-Log -LogFile $Logfile -LogLevel $logLevel -MsgType INFO -Message "Invoke-ValidateIP: Valid Client IP in List $($ACL.Name)"
-                                        $script:VerifyStatus = $true
-					$script:IPACL = $ACL
+                                        $script:IPACL = $ACL
                                         Break :ListCheck
                                     }
                                 }
@@ -97,8 +94,7 @@ function Invoke-ValidateIP
                             {
                                 if ($URL.toLower().StartsWith($Path))
                                 {
-                                    Write-Log -LogFile $Logfile -LogLevel $logLevel -MsgType INFO -Message "Invoke-ValidateIP: Valid Client IP in subnet $($NetworkAdr.Address)/$($NetworkLen)"
-                                    $script:VerifyStatus = $true
+                                    Write-Log -LogFile $Logfile -LogLevel $logLevel -MsgType INFO -Message "Invoke-ValidateIP: Valid Client IP in subnet $($ACL.Name)"
                                     $script:IPACL = $ACL
                                     Break :SubnetCheck
                                 }
@@ -109,6 +105,7 @@ function Invoke-ValidateIP
             }
         }
     }
-    #$script:VerifyStatus
+    
+    $script:VerifyStatus = ($null -ne $script:IPACL)
     $script:IPACL
 }

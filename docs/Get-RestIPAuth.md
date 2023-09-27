@@ -39,29 +39,34 @@ The function returns a Object simelar to this structure
 	  	"/comment":"All URLs should start with / and be written in lowercase",
 		"127.0.0.1": {
 		  	"/comment":"Localhost should have access to everything",
+			"Name":": "Local Host",
 			"Path": ["/"]
 		},
 		"192.168.22.18": {
 		  	"/comment":"This IP can access these two URLS",
+			"Name":": "Workstation 1",
 			"Path": ["/endpoint/shutdown", "/endpoint/status"]
 		},
 		"192.168.22.5": {
 		  	"/comment":"This ip can access any urls starting with /a or /b, eg. /Alpha, /Access or /Bravo would be valid",
+			"Name":": "Workstation 1",
 			"Path": ["/a", "/b"]
 		},
 		"192.168.22.5,192.168.22.18": {
 		  	"/comment":"These two IP address can access URLS starting with /c or /d",
+			"Name":": "Workstation 1 and 2",
 			"Path": ["/c", "/d"]
 		},
 		"192.168.1.0/24": {
 		  	"/comment":"This IP subnet have access to everything",
+			"Name":": "Subnet 1",
 			"Path": ["/"]
 		}
 	},
 	"EnableSubnetSearch": 0,
-	"/commentEnableSubnetSearch":"Enable subnet seach, this will take a performance hit, how big depends on the number of subnets in the ACL list.",
+	"/comment-EnableSubnetSearch":"Enable subnet seach, this will take a performance hit, how big depends on the number of subnets in the ACL list.",
 	"EnableIPList": 0,
-  	"/commentEnableIPList":"Enable of comma list of ACL IPS, Cost a little performance. Consider this instead of subnets"
+  	"/comment-EnableIPList":"Enable of comma list of ACL IPS, Cost a little performance. Consider this instead of subnets"
 }
 ```
 
