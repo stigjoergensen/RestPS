@@ -9,6 +9,8 @@ function Invoke-ValidateIP
         A VerifyClientIP is optional - Accepted values are:$false or $true
     .PARAMETER Url
         Url is optional - Checks if URL is in the ACL list gotten from Get-RestIPAuth.ACL
+    .OUTPUTS
+        The IPACL entry found to be valid for the validation
     .EXAMPLE
         Invoke-ValidateIP -VerifyClientIP $true -RestPSLocalRoot c:\RestPS
     .NOTES
@@ -45,6 +47,7 @@ function Invoke-ValidateIP
             }
 
             $script:VerifyStatus = $false
+	    $script:IPACL = $null
             if ($RestIPAuth.ACL."$($RequesterIP.Address)")
             {
                 :IPCheck foreach ($Path in $ACL.Path)
@@ -53,6 +56,7 @@ function Invoke-ValidateIP
                     {
                         Write-Log -LogFile $Logfile -LogLevel $logLevel -MsgType INFO -Message "Invoke-ValidateIP: Valid Client IP"
                         $script:VerifyStatus = $true
+			$script:IPACL = $ACL
                         break :IPCheck
                     }
                 }
@@ -73,6 +77,7 @@ function Invoke-ValidateIP
                                     {
                                         Write-Log -LogFile $Logfile -LogLevel $logLevel -MsgType INFO -Message "Invoke-ValidateIP: Valid Client IP in List $($ACL.Name)"
                                         $script:VerifyStatus = $true
+					$script:IPACL = $ACL
                                         Break :ListCheck
                                     }
                                 }
@@ -94,6 +99,7 @@ function Invoke-ValidateIP
                                 {
                                     Write-Log -LogFile $Logfile -LogLevel $logLevel -MsgType INFO -Message "Invoke-ValidateIP: Valid Client IP in subnet $($NetworkAdr.Address)/$($NetworkLen)"
                                     $script:VerifyStatus = $true
+                                    $script:IPACL = $ACL
                                     Break :SubnetCheck
                                 }
                             }
@@ -103,5 +109,6 @@ function Invoke-ValidateIP
             }
         }
     }
-    $script:VerifyStatus
+    #$script:VerifyStatus
+    $script:IPACL
 }
