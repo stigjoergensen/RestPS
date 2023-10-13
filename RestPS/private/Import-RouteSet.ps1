@@ -17,9 +17,18 @@ function Import-RouteSet
         [Parameter(Mandatory = $true)][String]$RoutesFilePath
     )
 
+    function AlterJson($Obj, $Filepath)
+    {
+        Foreach ($route in $obj)
+        {
+            $route.RequestCommand = [string]($route.RequestCommand) -replace [regex]::escape("`$home"), "$(Split-Path -parent $FilePath)"
+        }
+    }
+
     if (Test-Path -Path $RoutesFilePath)
     {
-        $script:Routes = Get-Content -Raw $RoutesFilePath | ConvertFrom-Json
+        #$script:Routes = Get-Content -Raw $RoutesFilePath | ConvertFrom-Json
+        $script:Routes = get-CachedJson -FilePath $RoutesFilePath -AlterJson AlterJson
     }
     else
     {

@@ -76,10 +76,14 @@ function Start-RestPSListener
         {
             # Capture requests as they come in (not Asyncronous)
             # Routes can be configured to be Asyncronous in Nature.
-            Write-Log -LogFile $Logfile -LogLevel $logLevel -MsgType TRACE -Message "Start-RestPSListener: Captured incoming request"
             $script:Request = Invoke-GetContext
             $script:ProcessRequest = $true
             $script:result = $null
+            $RequestType = $script:Request.HttpMethod
+            $RawRequestURL = $script:Request.RawUrl
+            # Specific args will need to be parsed in the Route commands/scripts Added the ,2.
+            $RequestURL, $RequestArgs = $RawRequestURL.split("?", 2)
+            Write-Log -LogFile $Logfile -LogLevel $logLevel -MsgType TRACE -Message "Start-RestPSListener: Captured incoming request '$( ($script:Request.RawUrl))'"
 
             # Perform Client Verification if SSLThumbprint is present and a Verification Method is specified.
             Write-Log -LogFile $Logfile -LogLevel $logLevel -MsgType TRACE -Message "Start-RestPSListener: Determining VerificationType: '$VerificationType'"
@@ -92,13 +96,13 @@ function Start-RestPSListener
                     if ($VerificationType -eq "")
                     {
                         Write-Log -LogFile $Logfile -LogLevel $logLevel -MsgType TRACE -Message "Start-RestPSListener: Executing Invoke-ValidateIP Validate IP only"
-                        $script:ProcessRequest = (Invoke-ValidateIP -RestPSLocalRoot $RestPSLocalRoot -VerifyClientIP $VerifyClientIP -URL ($script:Request.RawUrl).split("?"[0]) -ne $null)
+                        $script:ProcessRequest = ($null -ne (Invoke-ValidateIP -RestPSLocalRoot $RestPSLocalRoot -VerifyClientIP $VerifyClientIP -URL $RequestURL))
                     }
                     # Validate client IP's and VerificationType.
                     else
                     {
                         Write-Log -LogFile $Logfile -LogLevel $logLevel -MsgType TRACE -Message "Start-RestPSListener: Executing Invoke-ValidateIP Validate IP before Authentication"
-                        $script:ProcessRequest = (Invoke-ValidateIP -RestPSLocalRoot $RestPSLocalRoot -VerifyClientIP $VerifyClientIP -URL ($script:Request.RawUrl).split("?"[0]) -ne $null)
+                        $script:ProcessRequest = ($null -ne (Invoke-ValidateIP -RestPSLocalRoot $RestPSLocalRoot -VerifyClientIP $VerifyClientIP -URL $RequestURL))
                         # Determine if client IP validation was successful then start validation of VerificationType.
                         if ($script:ProcessRequest -eq $true)
                         {
@@ -125,12 +129,7 @@ function Start-RestPSListener
             $script:Body = Invoke-GetBody
 
             # Request Handler Data
-            Write-Log -LogFile $Logfile -LogLevel $logLevel -MsgType TRACE -Message "Start-RestPSListener: Determining Method and URL"
-            $RequestType = $script:Request.HttpMethod
-            $RawRequestURL = $script:Request.RawUrl
             Write-Log -LogFile $Logfile -LogLevel $logLevel -MsgType INFO -Message "Start-RestPSListener: New Request - Method: $RequestType URL: $RawRequestURL"
-            # Specific args will need to be parsed in the Route commands/scripts Added the ,2.
-            $RequestURL, $RequestArgs = $RawRequestURL.split("?", 2)
 
             if ($script:ProcessRequest -eq $true)
             {

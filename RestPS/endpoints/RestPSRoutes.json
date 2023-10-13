@@ -1,11 +1,6 @@
 [
   {
     "RequestType": "GET",
-    "RequestURL": "/proc",
-    "RequestCommand": "Get-Process -ProcessName PowerShell -ErrorAction SilentlyContinue | Select-Object -Property ProcessName,Id -ErrorAction SilentlyContinue"
-  },
-  {
-    "RequestType": "GET",
     "RequestURL": "/endpoint/status",
     "RequestCommand": "return 1"
   },
@@ -17,31 +12,46 @@
   {
     "RequestType": "GET",
     "RequestURL": "/endpoint/routes",
-    "RequestCommand": "c:/RestPS/endPoints/GET/Invoke-GetRoutes.ps1"
+    "RequestCommand": "$home/GET/Invoke-GetRoutes.ps1"
+  },
+  {
+    "RequestType": "GET",
+    "RequestURL": "/endpoint/ipAuth",
+    "RequestCommand": "$home/GET/Invoke-GetIPAuth.ps1"
+  },
+  {
+    "RequestType": "GET",
+    "RequestURL": "/endpoint/ipacl",
+    "RequestCommand": "$home/GET/Invoke-GetIPACL.ps1"
+  },
+  {
+    "RequestType": "GET",
+    "RequestURL": "/proc",
+    "RequestCommand": "Get-Process -ProcessName PowerShell -ErrorAction SilentlyContinue | Select-Object -Property ProcessName,Id -ErrorAction SilentlyContinue"
   },
   {
     "RequestType": "GET",
     "RequestURL": "/process",
-    "RequestCommand": "c:/RestPS/endPoints/GET/Invoke-GetProcess.ps1"
+    "RequestCommand": "$home/GET/Invoke-GetProcess.ps1"
   },
   {
     "RequestType": "GET",
     "RequestURL": "/basicChallenge",
-    "RequestCommand": "c:/RestPS/endPoints/GET/Invoke-BasicChallenge.ps1"
+    "RequestCommand": "$home/GET/Invoke-BasicChallenge.ps1"
   },
   {
     "RequestType": "PUT",
     "RequestURL": "/Service",
-    "RequestCommand": "c:/RestPS/endPoints/PUT/Invoke-GetProcess.ps1"
+    "RequestCommand": "$home/PUT/Invoke-GetProcess.ps1"
   },
   {
     "RequestType": "POST",
     "RequestURL": "/data",
-    "RequestCommand": "c:/RestPS/endPoints/POST/Invoke-GetProcess.ps1"
+    "RequestCommand": "$home/POST/Invoke-GetProcess.ps1"
   },
   {
     "RequestType": "DELETE",
     "RequestURL": "/data",
-    "RequestCommand": "c:/RestPS/endPoints/DELETE/Invoke-GetProcess.ps1"
+    "RequestCommand": "$home/DELETE/Invoke-GetProcess.ps1"
   }
 ]

@@ -1,0 +1,41 @@
+{
+  "192.168.7.0/24": {
+    "Name": "Subnet 7",
+    "Path": [
+      "/a"
+    ]
+  },
+  "192.168.1.0/24": {
+    "Name": "Subnet 1",
+    "Path": [
+      "/"
+    ]
+  },
+  "127.0.0.1": {
+    "Name": "Local host",
+    "Path": [
+      "/"
+    ]
+  },
+  "192.168.22.18": {
+    "Name": "Workstation 1",
+    "Path": [
+      "/endpoint/shutdown",
+      "/endpoint/status"
+    ]
+  },
+  "192.168.22.5": {
+    "Name": "Workstatation 2",
+    "Path": [
+      "/a",
+      "/b"
+    ]
+  },
+  "192.168.22.5,192.168.22.18": {
+    "Name": "Workstation 1 and 2",
+    "Path": [
+      "/c",
+      "/d"
+    ]
+  }
+}
