@@ -35,7 +35,7 @@ function Invoke-ValidateIP
             # make sure local request is 127.0.0.1
             :LocalIP foreach ($IP in Get-NetIpAddress)
             {
-                if ($IP.Address = $RequesterIP.Address)
+                if ($IP.IPAddress -eq $RequesterIP.Address)
                 {
                     $RequesterIP.Address = 16777343
                     break :LocalIP
